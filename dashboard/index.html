@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ERP Process & Data-Quality Dashboard</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root { --bg:#0f172a; --card:#1e293b; --ink:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --warn:#f59e0b; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+           background: var(--bg); color: var(--ink); padding: 28px; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    p.sub { color: var(--muted); margin: 0 0 24px; }
+    .kpis { display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:24px; }
+    .kpi { background:var(--card); border-radius:12px; padding:18px; }
+    .kpi .val { font-size:30px; font-weight:700; }
+    .kpi .lbl { color:var(--muted); font-size:13px; margin-top:4px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .card { background:var(--card); border-radius:12px; padding:18px; }
+    .card h2 { font-size:15px; margin:0 0 12px; font-weight:600; }
+    .bar { fill: var(--accent); }
+    .bar.warn { fill: var(--warn); }
+    .axis text { fill: var(--muted); font-size:11px; }
+    .axis line, .axis path { stroke:#334155; }
+    .val-label { fill: var(--ink); font-size:11px; }
+  </style>
+</head>
+<body>
+  <h1>ERP Order-to-Cash — Process &amp; Data-Quality Dashboard</h1>
+  <p class="sub">SQL-based analysis of business data &middot; built with D3.js, Python &amp; SQLite</p>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+    <div class="card"><h2>Average process step duration (days)</h2><svg id="steps"></svg></div>
+    <div class="card"><h2>Cycle time by region (days)</h2><svg id="region"></svg></div>
+    <div class="card"><h2>Revenue by category</h2><svg id="revenue"></svg></div>
+    <div class="card"><h2>Data-quality issues found</h2><svg id="quality"></svg></div>
+  </div>
+
+<script>
+// Load the data produced by analyze.py. NOTE: open this page via a local server
+// (python -m http.server) so the browser is allowed to fetch data.json.
+d3.json("data.json").then(draw).catch(err => {
+  document.body.insertAdjacentHTML("beforeend",
+    "<p style='color:#f87171'>Could not load data.json — run <code>python analyze.py</code> first, "
+    + "then serve this folder with <code>python -m http.server</code>.</p>");
+});
+
+function draw(d) {
+  // ---- KPI cards ----
+  const kpis = [
+    { val: d.kpis.total_orders.toLocaleString(), lbl: "Orders analysed" },
+    { val: d.kpis.avg_cycle_days, lbl: "Avg cycle time (days)" },
+    { val: d.kpis.data_quality_issues, lbl: "Data-quality issues" },
+    { val: d.kpis.duplicate_orders, lbl: "Duplicate orders" },
+  ];
+  d3.select("#kpis").selectAll("div").data(kpis).join("div").attr("class","kpi")
+    .html(k => `<div class="val">${k.val}</div><div class="lbl">${k.lbl}</div>`);
+
+  barChart("#steps",  d.step_durations,      x=>x.step,     y=>y.days,           false);
+  barChart("#region", d.cycle_by_region,     x=>x.region,   y=>y.avg_cycle_days, false);
+  barChart("#revenue",d.revenue_by_category, x=>x.category, y=>y.total_revenue,  false);
+  barChart("#quality",d.quality_breakdown,   x=>x.issue,    y=>y.count,          true);
+}
+
+// Reusable horizontal bar chart
+function barChart(sel, data, labelFn, valueFn, warn) {
+  const W = 440, rowH = 34, M = {top:6,right:60,bottom:6,left:130};
+  const H = M.top + M.bottom + data.length * rowH;
+  const svg = d3.select(sel).attr("viewBox", `0 0 ${W} ${H}`).attr("width","100%");
+  svg.selectAll("*").remove();
+
+  const x = d3.scaleLinear().domain([0, d3.max(data, valueFn) || 1]).range([M.left, W - M.right]);
+  const y = d3.scaleBand().domain(data.map(labelFn)).range([M.top, H - M.bottom]).padding(0.25);
+
+  svg.append("g").attr("class","axis").attr("transform",`translate(${M.left},0)`)
+     .call(d3.axisLeft(y).tickSize(0)).select(".domain").remove();
+
+  svg.selectAll("rect").data(data).join("rect")
+     .attr("class", warn ? "bar warn" : "bar")
+     .attr("x", M.left).attr("y", d => y(labelFn(d)))
+     .attr("height", y.bandwidth()).attr("width", d => x(valueFn(d)) - M.left)
+     .attr("rx", 4);
+
+  svg.selectAll("text.v").data(data).join("text").attr("class","val-label v")
+     .attr("x", d => x(valueFn(d)) + 6).attr("y", d => y(labelFn(d)) + y.bandwidth()/2 + 4)
+     .text(d => d3.format(",")(valueFn(d)));
+}
+</script>
+</body>
+</html>

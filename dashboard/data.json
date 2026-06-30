@@ -1,0 +1,99 @@
+{
+  "kpis": {
+    "total_orders": 5060,
+    "data_quality_issues": 379,
+    "duplicate_orders": 60,
+    "avg_cycle_days": 7.96
+  },
+  "step_durations": [
+    {
+      "step": "Order \u2192 Approval",
+      "days": 1.51
+    },
+    {
+      "step": "Approval \u2192 Ship",
+      "days": 4.04
+    },
+    {
+      "step": "Ship \u2192 Invoice",
+      "days": 2.41
+    }
+  ],
+  "cycle_by_region": [
+    {
+      "region": "Southern Europe",
+      "orders": 934,
+      "avg_cycle_days": 8.07
+    },
+    {
+      "region": "DACH",
+      "orders": 940,
+      "avg_cycle_days": 7.96
+    },
+    {
+      "region": "Western Europe",
+      "orders": 981,
+      "avg_cycle_days": 7.94
+    },
+    {
+      "region": "Nordics",
+      "orders": 1004,
+      "avg_cycle_days": 7.94
+    },
+    {
+      "region": "UK & Ireland",
+      "orders": 976,
+      "avg_cycle_days": 7.9
+    }
+  ],
+  "revenue_by_category": [
+    {
+      "category": "frozen",
+      "orders": 842,
+      "total_revenue": 4269955.69
+    },
+    {
+      "category": "household",
+      "orders": 822,
+      "total_revenue": 4264802.52
+    },
+    {
+      "category": "snacks",
+      "orders": 802,
+      "total_revenue": 4158589.04
+    },
+    {
+      "category": "beverages",
+      "orders": 827,
+      "total_revenue": 4140754.13
+    },
+    {
+      "category": "bakery",
+      "orders": 810,
+      "total_revenue": 4118594.74
+    },
+    {
+      "category": "dairy",
+      "orders": 805,
+      "total_revenue": 3860040.25
+    }
+  ],
+  "quality_breakdown": [
+    {
+      "issue": "Missing region",
+      "count": 152
+    },
+    {
+      "issue": "Bad amount",
+      "count": 152
+    },
+    {
+      "issue": "Bad dates",
+      "count": 75
+    },
+    {
+      "issue": "Duplicate rows",
+      "count": 60
+    }
+  ]
+}
