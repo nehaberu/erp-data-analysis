@@ -54,16 +54,3 @@ Outputs:
 
 ---
 
-## How to talk about this project (interview)
-
-> "I built an end-to-end analysis of an ERP order-to-cash process. I generated realistic
-> business data with data-quality problems baked in, loaded it into a SQL database, and
-> wrote queries to do two things: diagnose the errors — duplicates, missing fields,
-> impossible values, illogical dates — and measure how long each step of the process took
-> so I could find the bottleneck. Then I exported the results into an interactive D3.js
-> dashboard and an Excel report. It mirrors the real work of using SQL for error diagnosis
-> and turning data into something a business team can act on."
-
-**Key SQL concepts demonstrated:** `GROUP BY` + `HAVING` (duplicates), `CASE WHEN`
-(quality scorecard), date math (cycle times), `LOWER()` normalisation (inconsistent
-spelling). See [`sql/analysis.sql`](sql/analysis.sql) — every query is commented.
